@@ -8,6 +8,8 @@ import com.example.spring_redis_implementation.entity.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.cache.annotation.Cacheable;
+
 import java.util.*;
 import java.time.LocalDateTime;
 
@@ -17,12 +19,14 @@ import java.time.LocalDateTime;
 public class ProductService {
     private final ProductRepository productRepository;
 
+    
     public List<Product> getAllProducts(){
         log.info("Fetching all products from MySQL database ......");
         simulateSlowDbCall();
         return productRepository.findAll();
     }
 
+    @Cacheable(value = "products", key = "#id")
     public Product getProductById(Long id){
         log.info("Fetching product by id from MySQL database ......");
         simulateSlowDbCall();
