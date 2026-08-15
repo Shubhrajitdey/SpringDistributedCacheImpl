@@ -12,6 +12,13 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+  
+  redis-cache:
+    image: redis:alpine
+    container_name: demo_redis
+    restart: always
+    ports:
+      - "6379:6379"
 
 volumes:
   mysql_data:
