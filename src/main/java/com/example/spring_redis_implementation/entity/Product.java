@@ -24,7 +24,7 @@ public class Product implements Serializable{
     @Column (nullable = false)
     private String name;
 
-    private double price;
+    private Double price;
     private String description;
     private LocalDateTime createdAt;
 }

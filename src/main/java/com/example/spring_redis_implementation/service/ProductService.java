@@ -5,9 +5,13 @@ import org.springframework.stereotype.Service;
 import com.example.spring_redis_implementation.repository.ProductRepository;
 import com.example.spring_redis_implementation.dto.ProductRequest;
 import com.example.spring_redis_implementation.entity.Product;
+import com.example.spring_redis_implementation.exception.ProductNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.*;
@@ -19,7 +23,7 @@ import java.time.LocalDateTime;
 public class ProductService {
     private final ProductRepository productRepository;
 
-    
+    @Cacheable(value = "products", key = "#root.method.name")
     public List<Product> getAllProducts(){
         log.info("Fetching all products from MySQL database ......");
         simulateSlowDbCall();
@@ -30,7 +34,7 @@ public class ProductService {
     public Product getProductById(Long id){
         log.info("Fetching product by id from MySQL database ......");
         simulateSlowDbCall();
-        return productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found"));
     }
     
     public Product createProduct(ProductRequest request) {
@@ -44,15 +48,23 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    @CachePut(value = "products", key = "#id")
     public Product updateProduct(Long id, ProductRequest request) {
         log.info("Updating product ID {} in MySQL database...", id);
         Product product = getProductById(id);
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
+        if (request.getName() != null) {
+            product.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            product.setDescription(request.getDescription());
+        }
+        if (request.getPrice() != 0.0) {
+            product.setPrice(request.getPrice());
+        }
         return productRepository.save(product);
     }
 
+    @CacheEvict(value = "products", key = "#id")
     public void deleteProduct(Long id) {
         log.info("Deleting product ID {} from MySQL database...", id);
         productRepository.deleteById(id);
