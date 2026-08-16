@@ -32,7 +32,13 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<Product> getProductById(@PathVariable Long id, HttpServletRequest request) {
+        String clientIp = request.getRemoteAddr();
+        boolean allowed = rateLimiterService.isAllowedSlidingWindow(clientIp, 2, 60);
+        if (!allowed) {
+            throw new RateLimitExceededException("Too many requests. Please try again later.");
+        }
+
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
