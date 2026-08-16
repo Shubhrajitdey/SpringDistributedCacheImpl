@@ -19,5 +19,14 @@ public class GlobalExceptionHandler {
         response.put("path", "/api/products" + e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<Map<String,Object>> handleRateLimitExceededException(RateLimitExceededException e){
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.TOO_MANY_REQUESTS.value());
+        response.put("error", "Too many requests");
+        response.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(response);
+    }
 
 }

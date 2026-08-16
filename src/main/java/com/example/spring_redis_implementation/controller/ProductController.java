@@ -8,7 +8,10 @@ import java.util.List;
 import com.example.spring_redis_implementation.dto.ProductRequest;
 import com.example.spring_redis_implementation.entity.Product;
 import com.example.spring_redis_implementation.service.ProductService;
+import com.example.spring_redis_implementation.service.RateLimiterService;
+import com.example.spring_redis_implementation.exception.RateLimitExceededException;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -16,9 +19,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
+    private final RateLimiterService rateLimiterService;
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<Product>> getAllProducts(HttpServletRequest request) {
+        String clientIp = request.getRemoteAddr();
+        boolean allowed = rateLimiterService.isAllowed(clientIp, 2, 60);
+        if (!allowed) {
+            throw new RateLimitExceededException("Too many requests. Please try again later.");
+        }
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
