@@ -43,7 +43,7 @@ A production-grade Spring Boot application demonstrating **Distributed Caching**
 
 ---
 
-## ⚙️ Prerequisites
+## ⚙️ Prerequisites check
 
 Before running the application, make sure you have installed:
 * **Java 17+**
