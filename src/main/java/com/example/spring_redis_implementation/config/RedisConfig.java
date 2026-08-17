@@ -12,13 +12,15 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class RedisConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
                 .disableCachingNullValues()
                 .serializeKeysWith(
@@ -27,9 +29,15 @@ public class RedisConfig {
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.json())
                 );
+        
+        Map<String, RedisCacheConfiguration> customConfigs = new HashMap<>();
+        
+        // 1. "products_all" cache expires in 1 Minute
+        customConfigs.put("products_all", defaultConfig.entryTtl(Duration.ofMinutes(1)));
 
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(cacheConfig)
+                .withInitialCacheConfigurations(customConfigs)
+                .cacheDefaults(defaultConfig)
                 .build();
     }
 }

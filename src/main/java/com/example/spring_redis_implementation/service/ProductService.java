@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 public class ProductService {
     private final ProductRepository productRepository;
 
-    @Cacheable(value = "products", key = "#root.method.name")
+    @Cacheable(value = "products_all", key = "#root.method.name")
     public List<Product> getAllProducts(){
         log.info("Fetching all products from MySQL database ......");
         simulateSlowDbCall();
@@ -49,6 +49,7 @@ public class ProductService {
     }
 
     @CachePut(value = "products", key = "#id")
+    @CacheEvict(value = "products_all",key ="getAllProducts")
     public Product updateProduct(Long id, ProductRequest request) {
         log.info("Updating product ID {} in MySQL database...", id);
         Product product = getProductById(id);
