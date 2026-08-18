@@ -1,4 +1,4 @@
-# 🚀 Spring Boot Redis Distributed Caching & Rate Limiting
+# 🚀 Spring Boot Redis Distributed Caching & Rate Limiting Implementation
 
 A production-grade Spring Boot application demonstrating **Distributed Caching**, **Rate Limiting (Fixed Window & Sliding Window)**, and **Per-Cache Custom TTLs** using Redis and MySQL.
 
